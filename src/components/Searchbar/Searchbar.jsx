@@ -13,8 +13,19 @@ export class Searchbar extends Component {
 
   handleInputChenge = e => {
     e.preventDefault();
-    this.props.getPictures(this.state.inputValue);
+    if (
+      this.props.getPictures &&
+      this.state.inputValue !== this.props.inputValue
+    ) {
+      this.props.getPictures(this.state.inputValue);
+    }
   };
+
+  componentDidUpdate(prevProps) {
+    if (this.props.inputValue !== prevProps.inputValue) {
+      this.setState({ inputValue: this.props.inputValue });
+    }
+  }
 
   render() {
     return (
@@ -31,6 +42,7 @@ export class Searchbar extends Component {
             autoComplete="off"
             autoFocus
             placeholder="Search images and photos"
+            value={this.state.inputValue}
           />
         </form>
       </SearchbarStyled>

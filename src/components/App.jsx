@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import React, { Component } from 'react';
 import { Searchbar } from './Searchbar/Searchbar';
 import { getAllPictures } from '../picturse/pictures';
 import { ImageGallery } from './ImageGallery/ImageGallery';
@@ -16,6 +16,16 @@ export class App extends Component {
     modalAlt: '',
     openModal: false,
   };
+
+  componentDidUpdate(_, prevState) {
+    if (prevState.inputValue !== this.state.inputValue) {
+      this.setState({ currentPages: null }, () => this.getPictures());
+    }
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.closeModal);
+  }
 
   handleChangeInputValue = inputValue => {
     if (inputValue !== this.state.inputValue) {
@@ -57,6 +67,7 @@ export class App extends Component {
 
   openModal = (url, alt) => {
     this.setState({ modalUrl: url, modalAlt: alt, openModal: true });
+    document.addEventListener('keydown', this.closeModal);
   };
 
   closeModal = e => {
@@ -73,7 +84,10 @@ export class App extends Component {
 
     return (
       <>
-        <Searchbar getPictures={this.handleChangeInputValue} />
+        <Searchbar
+          getPictures={this.handleChangeInputValue}
+          inputValue={inputValue}
+        />
         <ImageGallery pictures={pictures} openModal={this.openModal} />
         {loading ? (
           <Loader />
