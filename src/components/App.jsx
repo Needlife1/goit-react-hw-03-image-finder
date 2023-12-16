@@ -10,18 +10,12 @@ export class App extends Component {
   state = {
     pictures: [],
     inputValue: '',
-    currentPages: null,
     loading: false,
     modalUrl: '',
     modalAlt: '',
     openModal: false,
+    page: 1,
   };
-
-  componentDidUpdate(_, prevState) {
-    if (prevState.inputValue !== this.state.inputValue) {
-      this.setState({ currentPages: null }, () => this.getPictures());
-    }
-  }
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.closeModal);
@@ -29,34 +23,33 @@ export class App extends Component {
 
   handleChangeInputValue = inputValue => {
     if (inputValue !== this.state.inputValue) {
-      this.setState({ currentPages: null });
+      this.setState({ page: 1, pictures: [], inputValue }, () =>
+        this.getPictures()
+      );
+    } else {
+      this.setState(
+        prev => ({ page: prev.page + 1, inputValue }),
+        () => this.getPictures()
+      );
     }
-
-    this.setState(
-      prev => ({
-        inputValue,
-        currentPages: prev.currentPages + 12,
-      }),
-      () => this.getPictures()
-    );
   };
 
   getPictures = async () => {
     this.setState({ loading: true });
 
     try {
-      const data = await getAllPictures(
-        this.state.inputValue,
-        this.state.currentPages
-      );
+      const data = await getAllPictures(this.state.inputValue, this.state.page);
 
-      if (this.state.pictures.length === 0) {
-        this.setState({ pictures: data.hits });
-      } else if (data.total <= this.state.pictures.length) {
-        alert('Картинки закончились =(');
-      } else {
-        this.setState({ pictures: [...data.hits] });
-      }
+      this.setState(
+        prev => ({
+          pictures: [...prev.pictures, ...data.hits],
+        }),
+        () => {
+          if (data.total <= this.state.pictures.length) {
+            alert('Картинки закончились =(');
+          }
+        }
+      );
     } catch (error) {
       alert('Что-то пошло не так...');
       console.error('Error fetching pictures:', error);
@@ -92,7 +85,7 @@ export class App extends Component {
         {loading ? (
           <Loader />
         ) : (
-          pictures.length !== 0 && (
+          pictures.length >= 12 && (
             <Button onClick={() => this.handleChangeInputValue(inputValue)} />
           )
         )}

@@ -6,6 +6,10 @@ export class Modal extends Component {
     document.addEventListener('keydown', this.props.closeModal);
   }
 
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.props.closeModal);
+  }
+
   render() {
     const { url, alt, closeModal } = this.props;
 
