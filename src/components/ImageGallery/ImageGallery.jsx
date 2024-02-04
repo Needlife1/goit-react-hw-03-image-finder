@@ -6,8 +6,8 @@ export const ImageGallery = ({ pictures, openModal }) => {
     <StyledImageGallary>
       {pictures.map(({ id, webformatURL, tags, largeImageURL }) => (
         <ImageGalleryItem
+          key={largeImageURL}
           onOpenModal={openModal}
-          key={id}
           id={id}
           webformatURL={webformatURL}
           largeImageURL={largeImageURL}

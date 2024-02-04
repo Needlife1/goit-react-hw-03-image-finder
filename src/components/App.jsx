@@ -17,20 +17,24 @@ export class App extends Component {
     page: 1,
   };
 
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.closeModal);
+  componentDidMount() {
+    this.getPictures();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      prevState.inputValue !== this.state.inputValue ||
+      prevState.page !== this.state.page
+    ) {
+      this.getPictures();
+    }
   }
 
   handleChangeInputValue = inputValue => {
     if (inputValue !== this.state.inputValue) {
-      this.setState({ page: 1, pictures: [], inputValue }, () =>
-        this.getPictures()
-      );
+      this.setState({ page: 1, pictures: [], inputValue });
     } else {
-      this.setState(
-        prev => ({ page: prev.page + 1, inputValue }),
-        () => this.getPictures()
-      );
+      this.setState(prev => ({ page: prev.page + 1, inputValue }));
     }
   };
 
@@ -46,12 +50,12 @@ export class App extends Component {
         }),
         () => {
           if (data.total <= this.state.pictures.length) {
-            alert('Картинки закончились =(');
+            alert('Картинки закінчились =(');
           }
         }
       );
     } catch (error) {
-      alert('Что-то пошло не так...');
+      alert('Щось пішло не так...');
       console.error('Error fetching pictures:', error);
     } finally {
       this.setState({ loading: false });
@@ -86,7 +90,7 @@ export class App extends Component {
           <Loader />
         ) : (
           pictures.length >= 12 && (
-            <Button onClick={() => this.handleChangeInputValue(inputValue)} />
+            <Button onClick={this.handleChangeInputValue} />
           )
         )}
         {openModal && (
